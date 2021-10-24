@@ -1,0 +1,22 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 20px;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.some {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  div {
+    width: calc(33.33% - 10px);
+    padding: 30px;
+    border-radius: 5px;
+    background: #cdcdcd;
+  }
+}
