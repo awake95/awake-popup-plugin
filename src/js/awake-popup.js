@@ -75,6 +75,10 @@ class AwakePopup {
     }
   }
 
+  /**
+   * Adding animation on open event
+   */
+
   animationOpen() {
     if (this.$animation.animationName === 'zoom') {
       this.$content.style.transform = 'scale(1)';
@@ -94,6 +98,10 @@ class AwakePopup {
       this.$popup.style.transitionDuration = '0.2s';
     }
   }
+
+  /**
+   * Adding animation on page initialized and close event
+   */
 
   animationInitialized() {
     if (this.$animation.animationName === 'zoom') {
