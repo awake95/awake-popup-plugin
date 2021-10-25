@@ -36,7 +36,7 @@ In your main js file:
             right: 20,
           },
           
-    animation: object, // animationName(string - only "fade" and "zoom"), durationOpen(number) and durationClose(number)
+    animation: object, // animationName(string - only "fade" and "zoom", required), durationOpen(number) and durationClose(number)
         //example
             animation: {
                 animationName: 'zoom',
