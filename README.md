@@ -10,12 +10,14 @@ This is custom popup plugin
 
 In your main js file: 
 
-// Usage example, where "selector" is selector for DOM element (button, span and etc), "options" is Object
+// Usage example - "options" is Object
 
-    const popup = new AwakePopup('selector', options)
+    const popup = new AwakePopup(options)
 
 
 **OPTIONS: {**
+
+    clickButtonSelector: string, // default empty, add selector to button (click handler will be added for open popup)
 
     content: string, // default empty, add your html here for popup content
     
@@ -26,6 +28,21 @@ In your main js file:
     overlay: boolean, // default false, if true - will add overlay on popup
     
     noScroll: boolean, // default false, if true - will disable scroll
+
+    position: object, // default centered in window, use property as in css - bottom, top, left, right (only numbers will allow)
+        //example
+          position: {
+            bottom: 20,
+            right: 20,
+          },
+          
+    animation: object, // animationName(string - only "fade" and "zoom"), durationOpen(number) and durationClose(number)
+        //example
+            animation: {
+                animationName: 'zoom',
+                durationOpen: 1200,
+                durationClose: 100,
+              },
     
     buttons: array of objects, one object is button, that contain text, classes, button type, handler and handler type, handler get 2 args - event and object(button)
      usage Example: 
