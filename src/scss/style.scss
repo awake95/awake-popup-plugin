@@ -24,8 +24,9 @@ html, body {
   }
 
   &.overlay {
-    background: rgba(0,0,0, 0.5);
+    background: rgba(0, 0, 0, 0.5);
   }
+
 
   &__content {
     background: #ffffff;
@@ -46,7 +47,6 @@ html, body {
     border: 0;
     z-index: 2;
     cursor: pointer;
-  ;
 
     &::before, &::after {
       position: absolute;

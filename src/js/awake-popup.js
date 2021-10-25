@@ -6,9 +6,14 @@ class AwakePopup {
    * @param options
    */
 
-  constructor ( selector, options ) {
+  constructor ( options ) {
 
-    this.$button = document.querySelector( selector );
+    this.$clickBtnSelector = options.clickButtonSelector;
+
+    if (this.$clickBtnSelector) {
+      this.$button = document.querySelector( this.$clickBtnSelector );
+    }
+
     this.$popup = null;
     this.$closeBtn = null;
     this.$body = document.querySelector( 'body' );
@@ -20,6 +25,12 @@ class AwakePopup {
     this.$buttons = options.buttons?.length ? options.buttons : [];
     this.$overlayClose = options.overlayClose ?? true;
     this.$scroll = options.noScroll ?? false;
+    this.$position =  options.position ?? false;
+    this.$showAfter = options.showAfterMs;
+    this.$animation = options.animation ?? false;
+    this.$animationDurationOpen = this.$animation && this.$animation.durationOpen ? this.$animation.durationOpen / 1000 : null;
+    this.$animationDurationClose = this.$animation && this.$animation.durationClose ? this.$animation.durationClose / 1000 : null;
+    this.$content = null;
 
     this.#render();
     this.#assign();
@@ -39,7 +50,69 @@ class AwakePopup {
     }
 
     this.$popup.innerHTML = this.getPopupTemplate( this.$options );
+    this.$content = this.$popup.querySelector('div[data-type="content"]')
+    if ( this.$position && this.$content ) {
+
+      this.$content.style.position = 'absolute'
+      this.$content.style.top = this.$position.top ? this.$position.top + 'px' : 'unset';
+      this.$content.style.left = this.$position.left ? this.$position.left + 'px' : 'unset';
+      this.$content.style.bottom = this.$position.bottom ? this.$position.bottom + 'px' : 'unset';
+      this.$content.style.right = this.$position.right ? (this.$position.right * 2) + 'px' : 'unset';
+    }
+
     this.$body.append( this.$popup );
+
+    if ( this.$showAfter ) {
+      this.showAfterTimeout();
+    }
+
+    if (this.$animation.animationName) {
+      if (this.$content) {
+        this.$content.classList.add( this.$animation.animationName );
+       this.animationInitialized();
+      }
+
+    }
+  }
+
+  animationOpen() {
+    if (this.$animation.animationName === 'zoom') {
+      this.$content.style.transform = 'scale(1)';
+      this.$content.style.transitionProperty = 'transform';
+    }
+
+    if (this.$animation.animationName === 'fade') {
+      this.$content.style.opacity = '1';
+      this.$content.style.transitionProperty = 'opacity';
+    }
+
+    if (this.$animationDurationOpen) {
+      this.$content.style.transitionDuration = this.$animationDurationOpen + 's';
+      this.$popup.style.transitionDuration = this.$animationDurationOpen + 's';
+    }else {
+      this.$content.style.transitionDuration = '0.2s';
+      this.$popup.style.transitionDuration = '0.2s';
+    }
+  }
+
+  animationInitialized() {
+    if (this.$animation.animationName === 'zoom') {
+      this.$content.style.transitionProperty = 'transform';
+      this.$content.style.transform = 'scale(0)';
+    }
+
+    if (this.$animation.animationName === 'fade') {
+      this.$content.style.opacity = '0';
+      this.$content.style.transitionProperty = 'opacity';
+    }
+
+    if (this.$animationDurationClose) {
+      this.$content.style.transitionDuration = this.$animationDurationClose + 's';
+      this.$popup.style.transitionDuration = this.$animationDurationClose + 's';
+    }else {
+      this.$content.style.transitionDuration = '0.2s';
+      this.$popup.style.transitionDuration = '0.2s';
+    }
   }
 
   /**
@@ -70,7 +143,9 @@ class AwakePopup {
         if ( button.handler ) {
           this.customButtonHandler = this.customButtonHandler.bind( this );
             const buttonWithoutClass = this.$popup.querySelector( `button[data-index="${ index }"]` );
-            buttonWithoutClass.addEventListener( button.handlerType ?? 'click', ( e ) => this.customButtonHandler( e, button ) );
+            if (buttonWithoutClass) {
+              buttonWithoutClass.addEventListener( button.handlerType ?? 'click', ( e ) => this.customButtonHandler( e, button ) );
+            }
         }
       } );
     }
@@ -133,6 +208,13 @@ class AwakePopup {
     }
   }
 
+  showAfterTimeout() {
+    let _this = this;
+    setTimeout(function (  ) {
+      _this.open();
+    }, this.$showAfter )
+  }
+
   /**
    * Button click handler to open popup
    */
@@ -157,7 +239,7 @@ class AwakePopup {
     }
 
     return `
-      <div class="awake-popup__content">
+      <div class="awake-popup__content" data-type="content">
         ${ $options.closeButton ? '<button class="awake-popup__close" data-close></button>' : '' }
         ${ $options?.content ?? '' }
         <div class="awake-popup__custom-buttons">${ buttons ? buttons.join( '' ) : '' }</div>
@@ -172,11 +254,23 @@ class AwakePopup {
   open () {
     this.$popup.classList.add( 'open' );
 
+    if ( this.$position ) {
+      const scrollBarWidth = this.scrollbarWidth;
+      if (this.$content) {
+        this.$content.style.right = this.$position.right ? this.$position.right * 2 - (+this.$position.right - +scrollBarWidth) + 'px' : 'unset';
+      }
+    }
+
     if (this.$scroll) {
       this.$html.style.paddingRight = this.scrollbarWidth + 'px';
       this.$body.classList.add('no-overflow');
       this.$html.classList.add('no-overflow');
     }
+
+    if (this.$content) {
+     this.animationOpen();
+    }
+
   }
 
   /**
@@ -185,6 +279,16 @@ class AwakePopup {
 
   close () {
     this.$popup.classList.remove( 'open' );
+
+    if ( this.$position ) {
+      this.$content.style.left = this.$position.left ? this.$position.left + 'px' : 'unset';
+      this.$content.style.right = this.$position.right ? this.$position.right + 'px' : 'unset';
+    }
+
+
+    if (this.$content) {
+      this.animationInitialized();
+    }
 
     if (this.$scroll) {
       this.$html.style.paddingRight = '0';
